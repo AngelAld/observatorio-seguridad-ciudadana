@@ -36,6 +36,16 @@ class Evento(models.Model):
     tipo_evento = models.ForeignKey(TipoEvento, on_delete=models.PROTECT)
     entidad = models.ForeignKey(Entidad, on_delete=models.PROTECT)
 
+    @property
+    def descripcion_truncada(self):
+        return self.descripcion[:100] + "..."
+
+    @property
+    def imagen_destacada(self):
+        imagen = Imagen.objects.filter(evento=self, is_destacada=True).first()
+        if imagen:
+            return "http://127.0.0.1:8000" + imagen.imagen.url
+
     def __str__(self):
         return f"{self.titulo} - {self.fecha}"
 
@@ -54,6 +64,7 @@ class Imagen(models.Model):
     imagen = models.ImageField(upload_to=imagenPath)
     descripcion = models.CharField(max_length=200)
     evento = models.ForeignKey(Evento, on_delete=models.CASCADE)
+    is_destacada = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.descripcion} - {self.evento.titulo}"
